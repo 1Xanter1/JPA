@@ -1,7 +1,7 @@
 drop table if exists ProductCharacteristics;
 drop table if exists Products;
-drop table if exists Categories;
 drop table if exists Characteristics;
+drop table if exists Categories;
 
 create  table Categories
 (
