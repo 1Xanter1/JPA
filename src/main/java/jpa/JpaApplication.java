@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Scanner;
 
 public class JpaApplication {
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         // Maven - отдельная программа выполняющая функции системы автоматизации сборки, автоматизируется
         // процесс компиляции и упаковки ее результата в целостный артифакт(конечная точка сборки).
         // В качестве артифакта может выступать как JAR, так и WAR файлы, получить собранный артифакт
@@ -134,9 +134,9 @@ public class JpaApplication {
             TypedQuery<Category> categoryTypedQuery = manager.createQuery(
                     "select c from Category c where c.name = :name", Category.class
             );
-            categoryTypedQuery.setParameter("name",categoryName );
-            while(true){
-                if(categoryTypedQuery.getResultList().isEmpty()){
+            categoryTypedQuery.setParameter("name", categoryName);
+            while (true) {
+                if (categoryTypedQuery.getResultList().isEmpty()) {
                     Category category = new Category();
                     category.setName(categoryName);
                     manager.persist(category);
@@ -165,13 +165,12 @@ public class JpaApplication {
                         break;
 
                     }
-                } else{
+                } else {
                     System.out.println("Такое имя уже существует. Попробуйте снова");
                     break;
                 }
             }
 //            String[] characteristicNames = {"Ширина", "Высота", "Материал изготовления", "Стоимость"};
-
 
 
 //            for (String characteristicName : characteristicNames) {
@@ -260,19 +259,21 @@ public class JpaApplication {
 //            throw new RuntimeException();
 //        }
 
-        try {
-            Query query = manager.createQuery(
-                    "delete from Product p where p.category.categoryId = ?1", Product.class
-            );
-            query.setParameter(1, 2);
-            query.executeUpdate();
-
-            manager.getTransaction().commit();
-
-        } catch (Exception e){
-            manager.getTransaction().rollback();
-            throw new RuntimeException();
-        }
-        
-        }
+//        try {
+//            Query query = manager.createQuery(
+//                    "delete from Product p where p.category.categoryId = ?1", Product.class
+//            );
+//            query.setParameter(1, 2);
+//            query.executeUpdate();
+//
+//            manager.getTransaction().commit();
+//        } catch (Exception e) {
+//            manager.getTransaction().rollback();
+//            throw new RuntimeException();
+//        } finally {
+//            manager.close();
+//
+//            factory.close();
+//        }
     }
+}

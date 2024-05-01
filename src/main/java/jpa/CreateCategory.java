@@ -3,12 +3,14 @@ package jpa;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.TypedQuery;
 import jpa.entity.Category;
 import jpa.entity.Characteristic;
-import jpa.entity.Product;
-import jpa.entity.Product_Characteristic;
 
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class CreateCategory {
         public static void main(String[] args) {
@@ -18,39 +20,64 @@ public class CreateCategory {
             // Создать в таблицах категории и характеристики записи которые бы
             // соотвествовали введённой информации.
 
-            EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory("new_category");
+            EntityManagerFactory managerFactory = Persistence.createEntityManagerFactory("main");
 
             EntityManager manager = managerFactory.createEntityManager();
 
-            try{
+            try {
                 manager.getTransaction().begin();
+//
+                Scanner scanner = new Scanner(System.in);
+//
+                System.out.println("Введите название категории:");
+                String categoryName = scanner.nextLine();
 
-                String categoryName = "Мебель";
+                TypedQuery<Category> categoryTypedQuery = manager.createQuery(
+                        "select c from Category c where c.name = :name", Category.class
+                );
+                categoryTypedQuery.setParameter("name", categoryName);
+                while (true) {
+                    if (categoryTypedQuery.getResultList().isEmpty()) {
+                        Category category = new Category();
+                        category.setName(categoryName);
+                        manager.persist(category);
 
-                String[] characteristicNames = {"Ширина", "Высота", "Материал изготовления", "Стоимость"};
+                        System.out.println("Введите характеристики категории (введите 'end', чтобы завершить ввод): ");
+                        List<String> characteristicNames = new ArrayList<>();
+                        String characteristicName;
+                        while (true) {
+                            System.out.print("Характеристика: ");
+                            characteristicName = scanner.nextLine();
+                            if (characteristicName.equals("end")) {
+                                break;
+                            }
+                            characteristicNames.add(characteristicName);
+                        }
 
-                Category category = new Category();
+                        for (String name : characteristicNames) {
+                            Characteristic characteristic = new Characteristic();
 
-                category.setName(categoryName);
+                            characteristic.setCategory(category);
+                            characteristic.setCharacteristicName(name);
 
-                manager.persist(category);
+                            category.getCharacteristics().add(characteristic);
+                            manager.persist(characteristic);
 
-                for (String characteristicName : characteristicNames) {
-                    Characteristic characteristic = new Characteristic();
+                            break;
 
-                    characteristic.setCategory(category);
-                    characteristic.setCharacteristicName(characteristicName);
-                    category.getCharacteristics().add(characteristic);
+                        }
+                    }  else {
+                        System.out.println("Такое имя уже существует. Попробуйте снова");
+                        break;
+                    }
                 }
+            } catch (Exception e) {
+                manager.getTransaction().rollback();
+                e.printStackTrace();
+            } finally {
+                manager.close();
 
-                manager.getTransaction().commit();
-            } catch (Exception e){
-                if (manager.getTransaction().isActive()){
-                    manager.getTransaction().rollback();
-                }
-                e.getStackTrace();
+                managerFactory.close();
             }
-            manager.close();
-            managerFactory.close();
         }
     }
